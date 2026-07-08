@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IX Std - Synonyms & Antonyms Quiz | English Teachers Hub Theni</title>
+
+<!--
+  =====================================================================
+  SETUP NOTES FOR RAM (T.S. Ramachandran) - READ BEFORE PUBLISHING
+  =====================================================================
+  1) GOOGLE FORM SETUP (for teacher score tracking):
+     - Create a new Google Form with these questions, IN THIS ORDER,
+       each set to "Short answer":
+         Student Name | Class/Section | Unit | Category | Mode |
+         Score | Total | Percentage | Date
+     - Click the 3-dot menu > Get pre-filled link. Fill dummy values in
+       each field, click "Get link", then look at the generated URL.
+       It will look like:
+       https://docs.google.com/forms/d/e/XXXXXXXXXXXX/viewform?entry.111=a&entry.222=b...
+     - Copy the form ID (the XXXX... part) and each entry.NNNN number,
+       and paste them into the CONFIG block below (search for "GOOGLE
+       FORM CONFIG").
+     - Responses will auto-appear in the linked Google Sheet under
+       Form Responses 1 - sort/filter there as needed.
+
+  2) All answer keys have been reviewed and confirmed - no outstanding
+     items to verify.
+
+  3) File must be renamed/uploaded as needed for GitHub Pages, or
+     embedded on Blogger via a button-link (this tool uses camera-free
+     but does use jsPDF for downloads, which works fine as a new-tab
+     link, per our usual pattern).
+  =====================================================================
+-->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.2/confetti.browser.min.js"></script>
+
+<style>
+  :root{
+    --navy:#1B2A4A;
+    --navy-light:#2c4270;
+    --gold:#C9A227;
+    --gold-light:#e6c860;
+    --bg:#f5f3ee;
+    --green:#1e7e34;
+    --red:#b91c1c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:var(--bg);
+    color:#222;
+  }
+  header{
+    background:var(--navy);
+    color:#fff;
+    padding:18px 16px;
+    text-align:center;
+    border-bottom:4px solid var(--gold);
+  }
+  header h1{margin:0;font-size:1.3rem;}
+  header p{margin:4px 0 0;font-size:0.8rem;color:var(--gold-light);}
+  .wrap{max-width:640px;margin:0 auto;padding:16px;}
+  .card{
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+    padding:18px;
+    margin-bottom:16px;
+    border-top:4px solid var(--gold);
+  }
+  h2{color:var(--navy);font-size:1.1rem;margin-top:0;}
+  label{display:block;font-weight:600;margin:10px 0 4px;color:var(--navy);}
+  input[type=text]{
+    width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:1rem;
+  }
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+  .unit-btn, .opt-btn, .choice-btn{
+    display:block;width:100%;
+    background:#fff;border:2px solid var(--navy);color:var(--navy);
+    padding:12px;border-radius:10px;font-size:0.95rem;font-weight:600;
+    cursor:pointer;margin-bottom:10px;text-align:left;
+  }
+  .unit-btn:active, .opt-btn:active{background:var(--navy);color:#fff;}
+  .opt-btn.selected{background:var(--navy);color:#fff;}
+  .choice-btn.selected{background:var(--navy);color:#fff;}
+  .choice-btn.correct{background:var(--green)!important;color:#fff;border-color:var(--green);}
+  .choice-btn.wrong{background:var(--red)!important;color:#fff;border-color:var(--red);}
+  .primary-btn{
+    background:var(--gold);border:none;color:var(--navy);
+    padding:13px 20px;border-radius:10px;font-size:1rem;font-weight:700;
+    cursor:pointer;width:100%;margin-top:8px;
+  }
+  .secondary-btn{
+    background:var(--navy);border:none;color:#fff;
+    padding:13px 20px;border-radius:10px;font-size:1rem;font-weight:700;
+    cursor:pointer;width:100%;margin-top:8px;
+  }
+  .progress-bar{background:#e2e2e2;border-radius:6px;height:10px;overflow:hidden;margin:10px 0;}
+  .progress-fill{background:var(--gold);height:100%;transition:width .3s;}
+  .qnum{color:#888;font-size:0.85rem;font-weight:600;}
+  .feedback{margin-top:10px;font-weight:600;font-size:0.9rem;}
+  .feedback.correct-text{color:var(--green);}
+  .feedback.wrong-text{color:var(--red);}
+  .score-big{font-size:2.6rem;font-weight:800;color:var(--navy);text-align:center;margin:6px 0;}
+  .score-pct{text-align:center;color:var(--gold);font-weight:700;font-size:1.2rem;}
+  .congrats-msg{
+    text-align:center;font-size:1.3rem;font-weight:800;margin:8px 0 4px;
+    animation:pop 0.6s ease;
+  }
+  @keyframes pop{
+    0%{transform:scale(0.5);opacity:0;}
+    60%{transform:scale(1.15);opacity:1;}
+    100%{transform:scale(1);}
+  }
+  .hidden{display:none;}
+  .footer-credit{
+    text-align:center;font-size:0.75rem;color:#666;margin-top:20px;padding:10px;
+  }
+  .tag{
+    display:inline-block;background:var(--navy);color:#fff;font-size:0.7rem;
+    padding:3px 8px;border-radius:20px;margin-bottom:8px;
+  }
+  #reviewList{margin-top:14px;}
+  .review-item{padding:8px 0;border-bottom:1px solid #eee;font-size:0.88rem;}
+  .review-item.wrong{color:var(--red);}
+  .review-item.ok{color:var(--green);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>IX Std - Synonyms &amp; Antonyms</h1>
+  <p>English Teachers Hub Theni</p>
+</header>
+
+<div class="wrap">
+
+  <!-- SCREEN 0: Student details -->
+  <div class="card" id="screen-start">
+    <h2>Before you begin</h2>
+    <label>Student Name</label>
+    <input type="text" id="studentName" placeholder="Enter your full name">
+    <label>School Name</label>
+    <input type="text" id="schoolName" placeholder="Enter your school name">
+    <label>Class / Section</label>
+    <input type="text" id="studentClass" placeholder="e.g. IX - A">
+    <button class="primary-btn" onclick="goToUnitSelect()">Continue</button>
+  </div>
+
+  <!-- SCREEN 1: Unit selection -->
+  <div class="card hidden" id="screen-units">
+    <h2>Choose a Unit</h2>
+    <div id="unitList"></div>
+  </div>
+
+  <!-- SCREEN 2: Category + Mode -->
+  <div class="card hidden" id="screen-options">
+    <h2 id="unitTitle"></h2>
+    <label>Category</label>
+    <button class="opt-btn" id="catBtn-synonyms" onclick="selectCategory('synonyms')">Synonyms only</button>
+    <button class="opt-btn" id="catBtn-antonyms" onclick="selectCategory('antonyms')">Antonyms only</button>
+    <button class="opt-btn" id="catBtn-mixed" onclick="selectCategory('mixed')">Mixed (both)</button>
+    <label>Mode</label>
+    <button class="opt-btn" id="modeBtn-practice" onclick="selectMode('practice')">Practice (instant feedback)</button>
+    <button class="opt-btn" id="modeBtn-test" onclick="selectMode('test')">Test (score at the end)</button>
+    <div id="startQuizWrap" class="hidden">
+      <button class="primary-btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Quiz -->
+  <div class="card hidden" id="screen-quiz">
+    <span class="tag" id="quizTag"></span>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <p class="qnum" id="qCounter"></p>
+    <h2 id="qText"></h2>
+    <div id="choices"></div>
+    <p class="feedback" id="feedbackMsg"></p>
+    <button class="primary-btn hidden" id="nextBtn" onclick="nextQuestion()">Next</button>
+  </div>
+
+  <!-- SCREEN 4: Result -->
+  <div class="card hidden" id="screen-result">
+    <h2>Result</h2>
+    <div class="congrats-msg" id="congratsMsg"></div>
+    <div class="score-big" id="scoreBig"></div>
+    <div class="score-pct" id="scorePct"></div>
+    <div id="reviewList"></div>
+    <button class="secondary-btn" onclick="submitToCognito()">Submit Score to Teacher</button>
+    <button class="primary-btn" onclick="downloadReport()">Download Detailed PDF Report</button>
+    <button class="secondary-btn" onclick="downloadCertificate()">Download Certificate</button>
+    <button class="secondary-btn" onclick="shareWhatsApp()">Share Result on WhatsApp</button>
+    <button class="opt-btn" onclick="restartQuiz()">Try Another Unit</button>
+  </div>
+
+  <div class="footer-credit">
+    T.S. Ramachandran, ELT, GHSS Erasakkanayakanur, Theni District<br>
+    English Teachers Hub Theni
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   GOOGLE FORM CONFIG - REPLACE WITH YOUR OWN FORM ID + ENTRY IDS
+   ===================================================================== */
+const GOOGLE_FORM = {
+  formId: "YOUR_FORM_ID_HERE",
+  entries: {
+    name: "entry.000000001",
+    className: "entry.000000002",
+    unit: "entry.000000003",
+    category: "entry.000000004",
+    mode: "entry.000000005",
+    score: "entry.000000006",
+    total: "entry.000000007",
+    percentage: "entry.000000008",
+    date: "entry.000000009"
+  }
+};
+
+/* Cognito Forms - score tracking (active) */
+const COGNITO_FORM_URL = "https://www.cognitoforms.com/englishteachershub/ixstdsynonymsandantonymsquizresults";
+
+/* =====================================================================
+   QUESTION DATA
+   Each unit has .synonyms[] and .antonyms[] arrays.
+   Each question: { q: "word", context: "sentence", options:[4], a: idx }
+   a = index of correct option (0=a,1=b,2=c,3=d)
+   ===================================================================== */
+const UNITS = [
+{
+  id:1, title:"Unit 1 - Learning the Game",
+  synonyms:[
+    {q:"emulate", context:"I often tried to 'emulate' the mannerism of my favourite players.", options:["lead","imitate / to match","dislike","misunderstand"], a:1},
+    {q:"excess", context:"All my 'excess' energies were getting channelled into cricket.", options:["insufficient","surplus","enough","excellent"], a:1},
+    {q:"rigorous", context:"The schedule was 'rigorous'.", options:["easy","timely","careful","tolerant"], a:2},
+    {q:"nuances", context:"He would talk to me about the 'nuances' of batting.", options:["importance","advice","practice","changes"], a:3},
+    {q:"pursue", context:"I wanted to 'pursue' cricket seriously.", options:["handshake","play","follow","give"], a:2},
+    {q:"embarrassment", context:"Dirty clothes often added to the 'embarrassment'.", options:["beauty","charm","Shame","lick"], a:2},
+    {q:"transpire", context:"Practice hard and see what magic can 'transpire'.", options:["mask","conceal","revealed","hide"], a:2},
+    {q:"bunk", context:"Tom sleeps on the bottom 'bunk'.", options:["absent","present","arrival","departed"], a:0},
+    {q:"melee", context:"Sir, would stop me in the 'melee'.", options:["took","confused","extracted","revealed"], a:1},
+    {q:"immense", context:"She is an artist of 'immense' talent.", options:["little","amazing","huge","small"], a:2},
+    {q:"intense", context:"Susan was an 'intense' young lady.", options:["extreme","normal","extense","gentle"], a:0},
+    {q:"virtual", context:"He was the 'virtual' leader of the movement.", options:["extreme","almost","away","incharge"], a:1},
+    {q:"assured", context:"Sachin 'assured' him he was, and so it was agreed.", options:["request","asked","demand","promised"], a:3},
+    {q:"wink", context:"He didn't sleep a 'wink' all night.", options:["sparkle","dull","slow","pause"], a:3},
+    {q:"scrutinize", context:"We must 'scrutinize' and evaluate.", options:["liberate","inspect","lazy","free"], a:1}
+  ],
+  antonyms:[
+    {q:"successful", context:"My mother is a 'successful' business man.", options:["Unsuccessful","prominent","prudent","disturbed"], a:0},
+    {q:"emulate", context:"You must work hard to 'emulate' your sister.", options:["seat","operate","observe","neglect"], a:3},
+    {q:"rigorous", context:"The schedule was 'rigorous'.", options:["deep love","strong belief","careless","true faith"], a:2},
+    {q:"nuances", context:"He would talk to me about the 'nuances' of batting.", options:["unchanges","agreed","lied","promised"], a:0},
+    {q:"pursue", context:"I wanted to 'pursue' cricket seriously.", options:["continue","proceed","stop","start"], a:2},
+    {q:"embarrassment", context:"She smiled to hide her slight 'embarrassment'.", options:["comfortable","prominent","sincere","daring"], a:0},
+    {q:"overawed", context:"He was totally 'overawed' by his father.", options:["whipped cruelly","discouraged","patted softly","swayed gently"], a:3},
+    {q:"enjoyed", context:"I always 'enjoyed' the conversation about batting.", options:["liked","loved","hated","admired"], a:2},
+    {q:"transpire", context:"Seven days 'transpire' in the course of the play.", options:["strongly spoken","well cultivated","very stubborn","cause"], a:3},
+    {q:"intense", context:"He suddenly felt an 'intense' pain in his back.", options:["mild","strong","whole","heavy"], a:0},
+    {q:"induction", context:"In this way, the principle of 'induction' is justified.", options:["playfulness","truthfulness","slyness","deduction"], a:3},
+    {q:"winning", context:"'Winning' the one rupee coin used to give me immense satisfaction.", options:["gaining","rewarding","getting","losing"], a:3},
+    {q:"personal", context:"It served as a very 'personal' coaching manual.", options:["private","individual","public","secret"], a:2}
+  ]
+},
+{
+  id:2, title:"Unit 2 - I Can't Climb Trees Anymore",
+  synonyms:[
+    {q:"muttered", context:"He 'muttered' to himself.", options:["delighted","excited","decided","mumbled"], a:3},
+    {q:"slithered", context:"The snake 'slithered' through the garden.", options:["stand","slide","walk","stumble"], a:1},
+    {q:"pruning", context:"She was tired of 'pruning' rose bushes.", options:["strength","trimming","beauty","popularity"], a:1},
+    {q:"cranking", context:"His grandfather 'cranking' up the old car.", options:["stop","struggle","intelligence","get going"], a:3},
+    {q:"chime", context:"The 'chime' of the clock woke him up.", options:["ringing sound","argue","disapprove","collide"], a:0},
+    {q:"sprightliness", context:"There was 'sprightliness' in his step.", options:["dullness","weakness","awkwardness","liveliness"], a:3},
+    {q:"shattering", context:"He slithered down into a flower bed 'shattering' the stem of a hollyhock.", options:["plucking","planting","touching","crushing"], a:3},
+    {q:"disembodied", context:"It was a 'disembodied' voice at first.", options:["tangible","physical","intangible","real"], a:2},
+    {q:"eddies", context:"She could feel the small 'eddies'.", options:["spiral","stillness","lull","calmness"], a:0},
+    {q:"prosperous", context:"He did not look very 'prosperous'.", options:["new method","fine task","simple way","flourishing"], a:3},
+    {q:"verge", context:"He stood on the grass 'verge' by the side of the road.", options:["beside","centre","edge","across"], a:2},
+    {q:"witty", context:"It was on the tip of his tongue to make a 'witty' remark.", options:["funny","intelligent","awkward","foolish"], a:0},
+    {q:"attic", context:"We always climb into the 'attic'.", options:["roof","ground","chair","loft"], a:3}
+  ],
+  antonyms:[
+    {q:"prosperous", context:"He did not look very 'prosperous'.", options:["successful","wealthy","weak","poor"], a:3},
+    {q:"slithered", context:"The snake 'slithered' through the garden.", options:["moving slowly","dragging","wither","standing"], a:3},
+    {q:"cranking", context:"Try 'cranking' the engine.", options:["working","stop","starting","struggle"], a:1},
+    {q:"prosperous", context:"He did not look very 'prosperous'.", options:["new method","fine task","simple way","unlucky"], a:3},
+    {q:"pruning", context:"She was tired of 'pruning' rose bushes.", options:["extending","trimming","cutting","popularity"], a:0},
+    {q:"insane", context:"The beggar was insulted for being 'insane'.", options:["foolish","mad","poverty","wise"], a:3},
+    {q:"sprightliness", context:"Everything is excused by the play of images, and the 'sprightliness' of expression.", options:["active","animated","energetic","inactive"], a:3},
+    {q:"witty", context:"His plays were very good, very 'witty'.", options:["dull","clever","bright","intelligence"], a:0},
+    {q:"valuable", context:"Oh! Nothing very 'valuable'.", options:["risky","useful","beneficial","worthless"], a:3},
+    {q:"old", context:"The 'old' house was demolished.", options:["new","big","clean","dirty"], a:0},
+    {q:"blessing", context:"A 'blessing' rests on the house.", options:["curse","luck","fortune","joy"], a:0},
+    {q:"remembered", context:"He 'remembered' his grandmother saying.", options:["forgot","recall","review","hesitate"], a:0},
+    {q:"inception", context:"Its 'inception' was in 1950.", options:["beginning","conclusion","introductory","final"], a:1}
+  ]
+},
+{
+  id:3, title:"Unit 3 - Old Man River",
+  synonyms:[
+    {q:"brigadier", context:"He should have been a 'brigadier' by now.", options:["rank in army","rank in office","rank in hospital","rank in house"], a:0},
+    {q:"rusty", context:"She ran breathlessly towards him in her outstretched hand a 'rusty' old medal.", options:["modern","ancient","lost","broken"], a:1},
+    {q:"inception", context:"The programme has been successful since its 'inception'.", options:["end","middle","origin","outset"], a:3},
+    {q:"interrupted", context:"He is 'interrupted' by the ring of the telephone.", options:["happy","regular","annoyance","sorrow"], a:2},
+    {q:"pitcher", context:"A 'pitcher' of lemonade was on the table.", options:["a large jug","tiny tank","small pit","large truck"], a:0},
+    {q:"gasp", context:"Sometime he would 'gasp' as he slept.", options:["filling","satisfying","breathes","wetting"], a:2},
+    {q:"hark", context:"Here are the lights. Did you say food? 'Hark'. What's that?", options:["shout","ask","listen","give"], a:2},
+    {q:"shudder", context:"A cold 'shudder' ran through him.", options:["steady","come out","stretch","shiver"], a:3},
+    {q:"thumping", context:"There is a 'thumping'.", options:["thrashing","applications","qualifications","acquaintances"], a:0},
+    {q:"winked", context:"Latha 'winked' at me as Ravi turned his back.", options:["gleam","clint","age","forever"], a:0},
+    {q:"soberly", context:"Jim spoke 'soberly'.", options:["happy","seriously","excited","eager"], a:1},
+    {q:"rescue", context:"Thank God for the 'rescue'.", options:["recovery","danger","risk","obstacle"], a:0},
+    {q:"sobbing", context:"I heard a child 'sobbing' loudly.", options:["laughing","smiling","cheerful","crying"], a:3},
+    {q:"snappy", context:"The show is well-acted and the dialogue is 'snappy'.", options:["irritable","good natured","peaceable","long winded"], a:0},
+    {q:"splint", context:"We can 'splint' it with pillows and umbrella.", options:["attach","support","tied","arrest"], a:1}
+  ],
+  antonyms:[
+    {q:"burst", context:"Gosh, girls, it's a cloud 'burst'.", options:["closure","spread","kindled","grew"], a:0},
+    {q:"probably", context:"'Probably' she loves that play house.", options:["purposefully","possibly","likely","certainly"], a:3},
+    {q:"shudder", context:"She recoiled with a 'shudder'.", options:["shake","quake","quiet","shiver"], a:2},
+    {q:"thumping", context:"He told us a 'thumping' great lie.", options:["hardly","lumping","dumping","damping"], a:0},
+    {q:"wink", context:"He had hardly slept a 'wink' all night.", options:["bink","squint","pause","brink"], a:2},
+    {q:"splint", context:"We can 'splint' it.", options:["quickness","alertness","tenderness","insecure"], a:3},
+    {q:"rescue", context:"They are performing an attempt of a 'rescue'.", options:["endanger","untiringly","tolerantly","consecutively"], a:0},
+    {q:"scared", context:"Oh, Jim I'm 'scared'.", options:["tried","brave/bold","taught","created"], a:1},
+    {q:"sobbing", context:"He began 'sobbing' uncontrollably.", options:["weeping","crying","ebbing","smiling"], a:3},
+    {q:"snappy", context:"We need a 'snappy' title for the book.", options:["lively","outdated","brisk","peaceable"], a:1},
+    {q:"interrupted", context:"A ringing telephone 'interrupted' us.", options:["uninterrupted/continue","disturbed","worried","interred"], a:0},
+    {q:"soberly", context:"Jim says 'soberly'.", options:["coolly","cheerfully","happily","excitedly"], a:3},
+    {q:"rapid", context:"A cloud burst is an usually 'rapid' precipitation.", options:["slow","fast","speed","brisk"], a:0}
+  ]
+},
+{
+  id:4, title:"Unit 4 - Seventeen Oranges",
+  synonyms:[
+    {q:"docks", context:"I often went in and out of the 'docks'.", options:["gentle","unpopular","port","yard"], a:2},
+    {q:"cabin", context:"He took me into his 'cabin'.", options:["house","small room","driver seat","open ground"], a:1},
+    {q:"concealed", context:"You've stolen the oranges and 'concealed' them in your pocket.", options:["revealed","bought","connected","hidden"], a:3},
+    {q:"blabbing", context:"I had read a lot of detective stories to make the mistake of 'blabbing'.", options:["shouting","keep quiet","hiding","revealing"], a:3},
+    {q:"chunk", context:"He bit a great 'chunk' out of the apple.", options:["juice","seeds","pieces","seeds"], a:2},
+    {q:"furiously", context:"Pongo laughed at him and Clem looked at him 'furiously'.", options:["politely","angrily","gently","calmly"], a:1},
+    {q:"bulging", context:"My trouser pockets were somewhat 'bulging'.", options:["kindness","swell out","affection","deep"], a:1},
+    {q:"evidence", context:"The detective scanned every bit of 'evidence'.", options:["proof","disprove","clarity","guess"], a:0},
+    {q:"peel", context:"Cut the orange 'peel' into fine shreds.", options:["pulp","core","middle","strip"], a:3},
+    {q:"swallow", context:"Most snakes 'swallow' their prey whole.", options:["gulp","discharge","vomit","eructate"], a:0},
+    {q:"tricky", context:"Hanging a door is quite a 'tricky' job.", options:["lazy","easy","difficult","fine"], a:2},
+    {q:"figure out", context:"He could not 'figure out' what had happened.", options:["draw","taught","find out","understand"], a:3}
+  ],
+  antonyms:[
+    {q:"careful", context:"Clem Jones was a 'careful' planner.", options:["gentleness","fair","kindness","careless"], a:3},
+    {q:"glad", context:"I am 'glad' we have an oil stove to cook.", options:["happy","delighted","joyful","sad"], a:3},
+    {q:"concealed", context:"You've stolen these oranges and 'concealed' them.", options:["hidden","revealed","lost","truth"], a:1},
+    {q:"angry", context:"Pongo became 'angry' and shouted at me.", options:["calm","annoyed","sullen","irritated"], a:0},
+    {q:"bulging", context:"My trouser pockets were somewhat 'bulging'.", options:["curved","extending","shrinking","straighten"], a:2},
+    {q:"chunks", context:"He bought the land in 'chunks' over the years.", options:["bulk","lump","mass","deficit"], a:3},
+    {q:"evidence", context:"The new 'evidence' weakens the case against her.", options:["proof","clue","data","disprove"], a:3},
+    {q:"flattered", context:"He 'flattered' with comments about how youthful she looks.", options:["lauded","insulted","congratulated","supported"], a:1},
+    {q:"furiously", context:"The bird flapped its wings 'furiously'.", options:["angrily","calmly","anxiously","obviously"], a:1},
+    {q:"scared", context:"Jim, I am 'scared'.", options:["happy","joy","close","courageous"], a:3}
+  ]
+},
+{
+  id:5, title:"Unit 5 - Water: The Elixir of Life",
+  synonyms:[
+    {q:"elixir", context:"There is no 'elixir' of life in the world.", options:["substance","character","crust","liquid"], a:0},
+    {q:"billowing", context:"On one side was visible a sea of 'billowing' sand without a speck of green.", options:["swelling","shrinking","deflating","flattering"], a:0},
+    {q:"teeming", context:"The earth 'teeming' with life and vegetation.", options:["meeting","crawling","condition","platform"], a:1},
+    {q:"trickling", context:"A little stream 'trickling' over the rocks.", options:["flow fastly","fall rapid","minute","flow slowly"], a:3},
+    {q:"barges", context:"Internal transport is by 'barges' through canals.", options:["ship","long boat","katamaram","cargo"], a:1},
+    {q:"incredibly", context:"'Incredibly' large amount of solid matter can be transported in this way.", options:["unbelievably","believably","boundary","unlimited"], a:0},
+    {q:"catchment", context:"The 'catchment' area shown for the funnel is very small.", options:["cup","basin","cabin","room"], a:1},
+    {q:"remarkable", context:"The 'remarkable' facts about water is its power to carry silt.", options:["surprising","unsurprising","terrible","truthful"], a:0},
+    {q:"menace", context:"The 'menace' which soil erosion presents to the continuance of successful agriculture is an alarming one.", options:["reassurance","ability","promise","threat"], a:3},
+    {q:"draught", context:"There is a 'draught' in this room.", options:["drink","calm","wreck","casket"], a:0},
+    {q:"occurs", context:"Soil erosion 'occurs' in successive steps.", options:["runs","happen","acts","flows"], a:1},
+    {q:"immortality", context:"She believed in the 'immortality' of the soul.", options:["unimportance","shame","eternal life","sorrow"], a:2},
+    {q:"erosion", context:"The area suffers badly from coastal 'erosion'.", options:["gain","increase","build up","corrosion"], a:3},
+    {q:"gloomy", context:"Turning to dark and 'gloomy' when the sky is overcast.", options:["happy","bright","cheerful","dull"], a:3},
+    {q:"ravine", context:"The soldiers shot down into the 'ravine'.", options:["desert","valley","seas","lakes"], a:1}
+  ],
+  antonyms:[
+    {q:"billowing", context:"One side of the sea was 'billowing'.", options:["shrink","shouted","laughed","whispered"], a:0},
+    {q:"teeming", context:"The earth 'teeming' with life and vegetation.", options:["meeting","empty","condition","platform"], a:1},
+    {q:"ancient", context:"It has created 'ancient' civilization by its river.", options:["old","modern","aged","importance"], a:1},
+    {q:"substantial", context:"Every animal or plant contains a 'substantial' proportion of free or combined water in its body.", options:["large","massive","insignificant","significant"], a:2},
+    {q:"common", context:"Water is the 'common' of liquids.", options:["uncommon / rare","accurate","perfecting","painful"], a:0},
+    {q:"quench", context:"The cattle 'quench' their thirst.", options:["satisfy","fulfill","dissatisfy","drank"], a:2},
+    {q:"trickling", context:"The engine was 'trickling' oil.", options:["buckling","pouring","suckling","duckling"], a:1},
+    {q:"deep", context:"The river flows into the 'deep' sea.", options:["shallow","empty","depth","narrow"], a:0},
+    {q:"menace", context:"These weapons are a 'menace'.", options:["threat","risk","hardness","auspicious"], a:3},
+    {q:"fertile", context:"It was one of the most 'fertile' area.", options:["fine","vegetation","greenish","barren"], a:3}
+  ]
+},
+{
+  id:6, title:"Unit 6 - From Zero to Infinity",
+  synonyms:[
+    {q:"absurd", context:"The boy had asked that 'absurd' questions.", options:["sophisticated","silly","intelligent","facilitated"], a:1},
+    {q:"infinite", context:"Each will get an 'infinite' number of chocolates.", options:["clash","involvement","related","endless"], a:3},
+    {q:"prodigy", context:"From early childhood it was evident that he was a 'prodigy'.", options:["stupid","genius","irresponsible","poor"], a:1},
+    {q:"dingy", context:"Students used to go to his 'dingy' place.", options:["bright","alarming","dirty","superior"], a:2},
+    {q:"unkempt", context:"'Unkempt' and uncouth, he would visit offices.", options:["important","different","struggle","untidy/shabby"], a:3},
+    {q:"uncouth", context:"Unkempt and 'uncouth', he would visit offices.", options:["uncovered","unhappy","unpleasant","undertake"], a:2},
+    {q:"conjecture", context:"Pierre Deligne subsequently proved this 'conjecture' to be correct.", options:["theorem","fact","truth","assumption/guess"], a:3},
+    {q:"distinguished", context:"He was the youngest Indian to receive this 'distinguished' fellowship.", options:["respected","ill treated","mislead","unworthy"], a:0},
+    {q:"devouring", context:"Disease was 'devouring' him.", options:["consuming","campaigned","competed","fought"], a:0},
+    {q:"disembark", context:"We should 'disembark' from the right exit.", options:["embarrassing","embark","go ashore","refused"], a:2},
+    {q:"emaciated", context:"The prisoners were ill and 'emaciated'.", options:["dressed","thin and weak","depreciate","racial"], a:1},
+    {q:"agonising", context:"The forget the 'agonising' pain, he continued to play with numbers even on his death bed.", options:["severe","light","mild","gentle"], a:0},
+    {q:"intriguing", context:"The boy was asked the 'intriguing' questions.", options:["relevant","interesting","related","capable"], a:1},
+    {q:"repute", context:"Besides being a mathematician, Ramanujan was as an astrologer of 'repute' and a good speaker.", options:["unimportance","infamy","shame","fame"], a:3}
+  ],
+  antonyms:[
+    {q:"emaciated", context:"The prisoners were ill and 'emaciated'.", options:["radiated","thin","bony","chubby"], a:3},
+    {q:"disappointed", context:"This 'disappointed' his father.", options:["dissatisfy","upset","frustrated","satisfy"], a:3},
+    {q:"silly", context:"What a 'silly' question to ask.", options:["ridiculous","senseless","unimportant","important"], a:3},
+    {q:"delighted", context:"But Ramanujam was 'delighted'.", options:["disappointed","pleased","happy","charmed"], a:0},
+    {q:"unkempt", context:"'Unkempt' and uncouth, he would visit offices.", options:["kempt / order","struggle","intelligence","carefulness"], a:0},
+    {q:"complimented", context:"The teacher later 'complimented' the boy.", options:["commanded","praised","comforted","insulted"], a:3},
+    {q:"significant", context:"This is a 'significant' contribution to knowledge.", options:["unimportant","popularity","strength","integrity"], a:0},
+    {q:"devouring", context:"Disease was 'devouring' him.", options:["undesirous","campaigned","completed","fought"], a:0},
+    {q:"intriguing", context:"The programme was very 'intriguing'.", options:["relevant","boring","related","capable"], a:1},
+    {q:"rare", context:"They had discovered a 'rare' mathematical genies.", options:["usual","uncommon","unusual","exceptional"], a:0},
+    {q:"endure", context:"I can't 'endure' loud music.", options:["praise","tolerate","fade","persist"], a:2}
+  ]
+},
+{
+  id:7, title:"Unit 7 - A Birthday Letter",
+  synonyms:[
+    {q:"inspiring", context:"His words are still 'inspiring'.", options:["encouraging","entertaining","discouraging","councelling"], a:0},
+    {q:"fascinated", context:"Do you know how 'fascinated' you were?", options:["receding","disappearing","increasing","attracted"], a:3},
+    {q:"deeds", context:"People make them do great 'deeds'.", options:["work","plans","brave actions","ambition"], a:2},
+    {q:"starving", context:"He has helped to make the 'starving'.", options:["beginning","suffering","reducing","ending"], a:1},
+    {q:"oppressed", context:"The poor and the 'oppressed' are free and happy.", options:["falls","subdued","rests","includes"], a:1},
+    {q:"sacred", context:"We have to respect India's honour and that honour is a 'sacred' trust.", options:["cursed","holy","secular","non-spiritual"], a:1},
+    {q:"unruffled", context:"The child of the light, unafraid and serene and 'unruffled'.", options:["impart","untroubled","discourage","press"], a:1},
+    {q:"serene", context:"The child's face is 'serene' and beautiful.", options:["peaceful and calm","agitated","troubled",""], a:0},
+    {q:"mysterious", context:"Beyond our world lie other wonderful and 'mysterious' worlds.", options:["common","strange","beautiful","amazing"], a:1},
+    {q:"doling", context:"I dislike sermonising and 'doling' out good advice.", options:["distributing","concrete","preaching","discussing"], a:0},
+    {q:"wise", context:"We have learned everything worth learning and become very 'wise'.", options:["dull","stupid","intelligent","excited"], a:2},
+    {q:"hardly", context:"A letter can 'hardly' take the place of a talk.", options:["scarcely","always","regularly","hesitatingly"], a:0},
+    {q:"fortunate", context:"You and I are 'fortunate' see this happening.", options:["lucky","unlucky","happy","sad"], a:0}
+  ],
+  antonyms:[
+    {q:"fascinated", context:"I was 'fascinated' by her voice.", options:["receding","uninterested","disappearing","increasing"], a:1},
+    {q:"deeds", context:"People make them to great 'deeds'.", options:["run forward","grows over","inactivity","files high"], a:2},
+    {q:"oppressed", context:"He has helped 'oppressed' people.", options:["ignored","freedom","slavery","subdued"], a:1},
+    {q:"sacred", context:"That honour is a 'sacred' trust.", options:["unaware","untrue","sacrificed","unholy"], a:3},
+    {q:"bored", context:"None of us need ever be 'bored' or imagine.", options:["interesting","uninteresting","dry","dull"], a:0},
+    {q:"secrecy", context:"They were all pledged to 'secrecy'.", options:["privacy","transparency","silence","secret"], a:1},
+    {q:"serene", context:"The child of the light is unafraid, 'serene' and unruffled.", options:["wanted","unwanted","bustling","related"], a:2},
+    {q:"unruffled", context:"She spoke with 'unruffled' calm.", options:["impart","ruffled","discourage","press"], a:1},
+    {q:"hardly", context:"A letter can 'hardly' take the place of a talk.", options:["barely","rarely","surely","always"], a:3},
+    {q:"ordinary", context:"'Ordinary' men and women are not usually heroic.", options:["extraordinary/special","common","moderate","usually"], a:0},
+    {q:"including", context:"The topics were 'including' the traditional history of India.", options:["excluding","dividing","separating","removing"], a:0}
+  ]
+}
+];
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+let state = {
+  studentName:"", schoolName:"", studentClass:"",
+  unit:null, category:"", mode:"",
+  questions:[], currentIndex:0,
+  score:0, answers:[], locked:false
+};
+
+function show(id){
+  ["screen-start","screen-units","screen-options","screen-quiz","screen-result"].forEach(s=>{
+    document.getElementById(s).classList.add("hidden");
+  });
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function goToUnitSelect(){
+  const name = document.getElementById("studentName").value.trim();
+  if(!name){ alert("Please enter your name to continue."); return; }
+  state.studentName = name;
+  state.schoolName = document.getElementById("schoolName").value.trim();
+  state.studentClass = document.getElementById("studentClass").value.trim();
+  const list = document.getElementById("unitList");
+  list.innerHTML = "";
+  UNITS.forEach(u=>{
+    const btn = document.createElement("button");
+    btn.className = "unit-btn";
+    btn.textContent = u.title;
+    btn.onclick = ()=>selectUnit(u);
+    list.appendChild(btn);
+  });
+  show("screen-units");
+}
+
+function selectUnit(u){
+  state.unit = u;
+  document.getElementById("unitTitle").textContent = u.title;
+  document.getElementById("startQuizWrap").classList.add("hidden");
+  state.category = ""; state.mode = "";
+  document.querySelectorAll("#screen-options .opt-btn").forEach(b=>b.classList.remove("selected"));
+  show("screen-options");
+}
+
+function selectCategory(cat){
+  state.category = cat;
+  ["synonyms","antonyms","mixed"].forEach(c=>{
+    document.getElementById("catBtn-"+c).classList.toggle("selected", c===cat);
+  });
+  checkReadyToStart();
+}
+function selectMode(mode){
+  state.mode = mode;
+  ["practice","test"].forEach(m=>{
+    document.getElementById("modeBtn-"+m).classList.toggle("selected", m===mode);
+  });
+  checkReadyToStart();
+}
+function checkReadyToStart(){
+  if(state.category && state.mode){
+    document.getElementById("startQuizWrap").classList.remove("hidden");
+  }
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function startQuiz(){
+  let pool = [];
+  if(state.category==="synonyms") pool = state.unit.synonyms.map(x=>({...x,cat:"Synonym"}));
+  else if(state.category==="antonyms") pool = state.unit.antonyms.map(x=>({...x,cat:"Antonym"}));
+  else pool = [
+    ...state.unit.synonyms.map(x=>({...x,cat:"Synonym"})),
+    ...state.unit.antonyms.map(x=>({...x,cat:"Antonym"}))
+  ];
+  state.questions = shuffle(pool);
+  state.currentIndex = 0;
+  state.score = 0;
+  state.answers = [];
+  document.getElementById("quizTag").textContent =
+    state.unit.title + " - " + (state.category==="mixed"?"Mixed":state.category) + " - " + (state.mode==="practice"?"Practice":"Test");
+  show("screen-quiz");
+  renderQuestion();
+}
+
+function renderQuestion(){
+  state.locked = false;
+  const q = state.questions[state.currentIndex];
+  const total = state.questions.length;
+  document.getElementById("progressFill").style.width = ((state.currentIndex)/total*100)+"%";
+  document.getElementById("qCounter").textContent = "Question "+(state.currentIndex+1)+" of "+total+" ("+q.cat+")";
+  document.getElementById("qText").textContent = q.context.replace(/'([^']+)'/,"'$1'");
+  const choicesDiv = document.getElementById("choices");
+  choicesDiv.innerHTML = "";
+  const letters = ["a","b","c","d"];
+  q.options.forEach((opt,idx)=>{
+    if(!opt) return;
+    const btn = document.createElement("button");
+    btn.className = "choice-btn";
+    btn.textContent = letters[idx]+") "+opt;
+    btn.onclick = ()=>selectChoice(idx,btn);
+    choicesDiv.appendChild(btn);
+  });
+  document.getElementById("feedbackMsg").textContent = "";
+  document.getElementById("nextBtn").classList.add("hidden");
+}
+
+function selectChoice(idx, btn){
+  if(state.locked) return;
+  state.locked = true;
+  const q = state.questions[state.currentIndex];
+  const correct = idx === q.a;
+  if(correct) state.score++;
+  state.answers.push({
+    word:q.q, context:q.context, cat:q.cat,
+    chosen: q.options[idx], correctAns: q.options[q.a], isCorrect: correct
+  });
+
+  const allBtns = document.querySelectorAll("#choices .choice-btn");
+  if(state.mode==="practice"){
+    allBtns.forEach((b,i)=>{
+      if(i===q.a) b.classList.add("correct");
+      if(i===idx && !correct) b.classList.add("wrong");
+    });
+    const fb = document.getElementById("feedbackMsg");
+    fb.textContent = correct ? "Correct!" : ("Not quite. Correct answer: "+q.options[q.a]);
+    fb.className = "feedback " + (correct?"correct-text":"wrong-text");
+  } else {
+    btn.classList.add("selected");
+  }
+  document.getElementById("nextBtn").classList.remove("hidden");
+}
+
+function nextQuestion(){
+  state.currentIndex++;
+  if(state.currentIndex >= state.questions.length){
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz(){
+  document.getElementById("progressFill").style.width = "100%";
+  const total = state.questions.length;
+  const pct = Math.round((state.score/total)*100);
+  document.getElementById("scoreBig").textContent = state.score + " / " + total;
+  document.getElementById("scorePct").textContent = pct + "%";
+
+  const reviewList = document.getElementById("reviewList");
+  reviewList.innerHTML = "<h2>Review</h2>";
+  state.answers.forEach((a,i)=>{
+    const div = document.createElement("div");
+    div.className = "review-item " + (a.isCorrect?"ok":"wrong");
+    div.textContent = (i+1)+". ["+a.cat+"] "+a.word+" -> Your answer: "+a.chosen+
+      (a.isCorrect ? " (Correct)" : (" (Correct answer: "+a.correctAns+")"));
+    reviewList.appendChild(div);
+  });
+
+  show("screen-result");
+
+  const congrats = document.getElementById("congratsMsg");
+  congrats.className = "congrats-msg";
+  if(pct >= 90){
+    congrats.textContent = "🌟 Outstanding! 👏👏👏";
+    congrats.style.color = "#1e7e34";
+  } else if(pct >= 75){
+    congrats.textContent = "🎉 Excellent Work! 👏👏";
+    congrats.style.color = "#2e8b57";
+  } else if(pct >= 60){
+    congrats.textContent = "👍 Good Job! 👏";
+    congrats.style.color = "#C9A227";
+  } else if(pct >= 40){
+    congrats.textContent = "💪 Keep Practicing!";
+    congrats.style.color = "#c87814";
+  } else {
+    congrats.textContent = "📚 Try Again - You Can Do It!";
+    congrats.style.color = "#b91c1c";
+  }
+
+  if(pct >= 60 && typeof confetti === "function"){
+    const burst = pct >= 90 ? 220 : (pct >= 75 ? 180 : 150);
+    confetti({particleCount:burst, spread:90, origin:{y:0.5}});
+    setTimeout(()=>confetti({particleCount:120, spread:110, origin:{y:0.65}}), 350);
+    if(pct >= 90){
+      setTimeout(()=>confetti({particleCount:150, spread:120, origin:{y:0.4}, colors:["#C9A227","#1B2A4A","#ffffff"]}), 700);
+    }
+  }
+
+  submitToGoogleForm(pct); // inactive unless GOOGLE_FORM.formId is configured; Cognito is the active option via the button below
+}
+
+function submitToGoogleForm(pct){
+  if(GOOGLE_FORM.formId === "YOUR_FORM_ID_HERE") return; // not configured yet
+  const url = "https://docs.google.com/forms/d/e/"+GOOGLE_FORM.formId+"/formResponse";
+  const params = new URLSearchParams();
+  params.append(GOOGLE_FORM.entries.name, state.studentName);
+  params.append(GOOGLE_FORM.entries.className, state.studentClass);
+  params.append(GOOGLE_FORM.entries.unit, state.unit.title);
+  params.append(GOOGLE_FORM.entries.category, state.category);
+  params.append(GOOGLE_FORM.entries.mode, state.mode);
+  params.append(GOOGLE_FORM.entries.score, state.score);
+  params.append(GOOGLE_FORM.entries.total, state.questions.length);
+  params.append(GOOGLE_FORM.entries.percentage, pct+"%");
+  params.append(GOOGLE_FORM.entries.date, new Date().toLocaleString());
+
+  fetch(url, { method:"POST", mode:"no-cors", body:params })
+    .catch(()=>{ /* no-cors always "fails" silently to read, that's expected */ });
+}
+
+function submitToCognito(){
+  const total = state.questions.length;
+  const pct = Math.round((state.score/total)*100);
+  const nameParts = state.studentName.trim().split(/\s+/);
+  const first = nameParts[0] || "";
+  const last = nameParts.slice(1).join(" ") || "";
+  const entry = {
+    StudentName: { First: first, Last: last },
+    SchoolName: state.schoolName || "-",
+    ClassSection: state.studentClass || "-",
+    Unit: state.unit.title,
+    Category: state.category,
+    Mode: state.mode,
+    Score: state.score,
+    Total: total,
+    Percentage: pct+"%",
+    Date: new Date().toLocaleString()
+  };
+  const url = COGNITO_FORM_URL + "?entry=" + encodeURIComponent(JSON.stringify(entry));
+  window.open(url, "_blank");
+}
+
+function restartQuiz(){
+  show("screen-units");
+}
+
+/* =====================================================================
+   PDF REPORT (ASCII only - jsPDF WinAnsi constraint)
+   ===================================================================== */
+function toAscii(str){
+  return str.replace(/[^\x00-\x7F]/g, "");
+}
+
+function getGrade(pct){
+  if(pct>=90) return {label:"Outstanding", color:[30,126,52]};
+  if(pct>=75) return {label:"Excellent", color:[46,139,87]};
+  if(pct>=60) return {label:"Good", color:[201,162,39]};
+  if(pct>=40) return {label:"Fair", color:[200,120,20]};
+  return {label:"Needs Practice", color:[185,28,28]};
+}
+
+function downloadReport(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:"mm", format:"a4" });
+  const total = state.questions.length;
+  const pct = Math.round((state.score/total)*100);
+  const grade = getGrade(pct);
+  const pageW = 210;
+
+  /* Header band */
+  doc.setFillColor(27,42,74);
+  doc.rect(0,0,pageW,20,"F");
+  doc.setFillColor(201,162,39);
+  doc.rect(0,20,pageW,1.5,"F");
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(15);
+  doc.setFont(undefined,"bold");
+  doc.text("IX Std Synonyms & Antonyms - Detailed Report", pageW/2, 12, {align:"center"});
+  doc.setFont(undefined,"normal");
+
+  /* Student info table (2-column, compact) */
+  doc.autoTable({
+    startY: 26,
+    theme: "grid",
+    styles:{ fontSize:9, cellPadding:2, textColor:[30,30,30], lineColor:[220,220,220] },
+    headStyles:{ fillColor:[255,255,255] },
+    body:[
+      ["Student Name", toAscii(state.studentName), "School", toAscii(state.schoolName||"-")],
+      ["Class/Section", toAscii(state.studentClass||"-"), "Unit", toAscii(state.unit.title)],
+      ["Category", toAscii(state.category), "Mode", toAscii(state.mode)],
+      ["Date", new Date().toLocaleDateString(), "Time", new Date().toLocaleTimeString()]
+    ],
+    columnStyles:{
+      0:{fontStyle:"bold", textColor:[27,42,74], cellWidth:28},
+      1:{cellWidth:65},
+      2:{fontStyle:"bold", textColor:[27,42,74], cellWidth:25},
+      3:{cellWidth:"auto"}
+    },
+    margin:{left:14, right:14}
+  });
+
+  /* Score summary strip */
+  let y = doc.lastAutoTable.finalY + 5;
+  doc.setFillColor(grade.color[0],grade.color[1],grade.color[2]);
+  doc.roundedRect(14, y, pageW-28, 16, 2, 2, "F");
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(13);
+  doc.setFont(undefined,"bold");
+  doc.text("Score: " + state.score + " / " + total + "   (" + pct + "%)   -   " + grade.label, pageW/2, y+10, {align:"center"});
+  doc.setFont(undefined,"normal");
+  y += 22;
+
+  /* Question-wise table */
+  const rows = state.answers.map((a,i)=>[
+    i+1,
+    toAscii(a.cat),
+    toAscii(a.word),
+    toAscii(a.chosen),
+    a.isCorrect ? "-" : toAscii(a.correctAns),
+    a.isCorrect ? "Correct" : "Wrong"
+  ]);
+
+  doc.autoTable({
+    startY: y,
+    head:[["#","Type","Word","Your Answer","Correct Answer","Result"]],
+    body: rows,
+    theme:"striped",
+    styles:{ fontSize:8, cellPadding:1.8, textColor:[30,30,30] },
+    headStyles:{ fillColor:[27,42,74], textColor:[255,255,255], fontStyle:"bold" },
+    alternateRowStyles:{ fillColor:[245,243,238] },
+    columnStyles:{
+      0:{cellWidth:8, halign:"center"},
+      1:{cellWidth:18},
+      2:{cellWidth:30},
+      3:{cellWidth:45},
+      4:{cellWidth:45},
+      5:{cellWidth:20, halign:"center", fontStyle:"bold"}
+    },
+    margin:{left:14, right:14},
+    didParseCell: function(data){
+      if(data.section === "body" && data.column.index === 5){
+        if(data.cell.raw === "Correct"){ data.cell.styles.textColor = [30,126,52]; }
+        else if(data.cell.raw === "Wrong"){ data.cell.styles.textColor = [185,28,28]; }
+      }
+    }
+  });
+
+  /* Footer credit - keep on same page */
+  const finalY = doc.lastAutoTable.finalY + 8;
+  doc.setDrawColor(201,162,39);
+  doc.setLineWidth(0.3);
+  doc.line(14, finalY, pageW-14, finalY);
+  doc.setFontSize(8.5);
+  doc.setTextColor(100,100,100);
+  doc.text("T.S. Ramachandran, ELT, GHSS Erasakkanayakanur, Theni District  |  English Teachers Hub Theni", pageW/2, finalY+5, {align:"center"});
+
+  doc.save(toAscii(state.studentName).replace(/\s+/g,"_") + "_" + toAscii(state.unit.title).replace(/\s+/g,"_") + "_Report.pdf");
+}
+
+/* =====================================================================
+   CERTIFICATE PDF
+   ===================================================================== */
+function downloadCertificate(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:"landscape" });
+  const total = state.questions.length;
+  const pct = Math.round((state.score/total)*100);
+
+  doc.setFillColor(245,243,238);
+  doc.rect(0,0,297,210,"F");
+
+  doc.setDrawColor(201,162,39);
+  doc.setLineWidth(2);
+  doc.rect(8,8,281,194);
+  doc.setLineWidth(0.5);
+  doc.rect(12,12,273,186);
+
+  doc.setTextColor(27,42,74);
+  doc.setFontSize(28);
+  doc.text("Certificate of Achievement", 148, 45, {align:"center"});
+
+  doc.setFontSize(13);
+  doc.setTextColor(80,80,80);
+  doc.text("This certificate is proudly presented to", 148, 65, {align:"center"});
+
+  doc.setFontSize(26);
+  doc.setTextColor(201,162,39);
+  doc.text(toAscii(state.studentName), 148, 85, {align:"center"});
+
+  doc.setFontSize(13);
+  doc.setTextColor(80,80,80);
+  doc.text("for successfully completing", 148, 100, {align:"center"});
+
+  doc.setFontSize(16);
+  doc.setTextColor(27,42,74);
+  doc.text(toAscii(state.unit.title) + " - Synonyms & Antonyms Quiz", 148, 112, {align:"center"});
+
+  doc.setFontSize(11);
+  doc.setTextColor(100,100,100);
+  if(state.schoolName){
+    doc.text(toAscii(state.schoolName), 148, 120, {align:"center"});
+  }
+
+  doc.setFontSize(14);
+  doc.setTextColor(27,42,74);
+  doc.text("Score: " + state.score + " / " + total + "  (" + pct + "%)", 148, 132, {align:"center"});
+
+  doc.setFontSize(11);
+  doc.setTextColor(100,100,100);
+  doc.text("Date: " + new Date().toLocaleDateString(), 148, 148, {align:"center"});
+
+  doc.setFontSize(10);
+  doc.text("T.S. Ramachandran, ELT", 60, 185);
+  doc.text("GHSS Erasakkanayakanur, Theni District", 60, 191);
+  doc.text("English Teachers Hub Theni", 220, 191);
+
+  doc.save(toAscii(state.studentName).replace(/\s+/g,"_") + "_Certificate.pdf");
+}
+
+/* =====================================================================
+   WHATSAPP SHARE
+   ===================================================================== */
+function shareWhatsApp(){
+  const total = state.questions.length;
+  const pct = Math.round((state.score/total)*100);
+  const msg = "I scored " + state.score + "/" + total + " (" + pct + "%) in "
+    + state.unit.title + " Synonyms & Antonyms Quiz - English Teachers Hub Theni!";
+  const url = "https://wa.me/?text=" + encodeURIComponent(msg);
+  window.open(url, "_blank");
+}
+</script>
+</body>
+</html>
