@@ -36,7 +36,85 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.2/confetti.browser.min.js"></script>
+<script>
+/* Self-contained confetti (no external CDN dependency) */
+(function(){
+  let canvas, ctx, particles = [], animating = false;
+  function ensureCanvas(){
+    if(canvas) return;
+    canvas = document.createElement('canvas');
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '99999';
+    document.body.appendChild(canvas);
+    ctx = canvas.getContext('2d');
+    resize();
+    window.addEventListener('resize', resize);
+  }
+  function resize(){
+    if(!canvas) return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  function randomInRange(min,max){ return Math.random()*(max-min)+min; }
+
+  window.confetti = function(opts){
+    opts = opts || {};
+    ensureCanvas();
+    const count = opts.particleCount || 50;
+    const spread = opts.spread || 45;
+    const originX = (opts.origin && opts.origin.x!=null ? opts.origin.x : 0.5) * canvas.width;
+    const originY = (opts.origin && opts.origin.y!=null ? opts.origin.y : 0.5) * canvas.height;
+    const colors = opts.colors || ['#C9A227','#1B2A4A','#e6c860','#ffffff','#2e8b57'];
+    for(let i=0;i<count;i++){
+      const angle = (Math.random()*spread - spread/2 - 90) * Math.PI/180;
+      const speed = randomInRange(4,12);
+      particles.push({
+        x: originX, y: originY,
+        vx: Math.cos(angle)*speed,
+        vy: Math.sin(angle)*speed,
+        gravity: 0.28,
+        size: randomInRange(5,9),
+        color: colors[Math.floor(Math.random()*colors.length)],
+        rotation: Math.random()*360,
+        rotSpeed: randomInRange(-8,8),
+        life: 0,
+        maxLife: randomInRange(60,110)
+      });
+    }
+    if(!animating){ animating = true; requestAnimationFrame(animate); }
+  };
+
+  function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles = particles.filter(p => p.life < p.maxLife);
+    particles.forEach(p=>{
+      p.vy += p.gravity;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.rotSpeed;
+      p.life++;
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rotation*Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, 1 - p.life/p.maxLife);
+      ctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);
+      ctx.restore();
+    });
+    if(particles.length>0){
+      requestAnimationFrame(animate);
+    } else {
+      animating = false;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+  }
+})();
+</script>
 
 <style>
   :root{
@@ -880,11 +958,14 @@ function downloadCertificate(){
 /* =====================================================================
    WHATSAPP SHARE
    ===================================================================== */
+const QUIZ_SITE_URL = "https://englishteachershub.github.io/IX-STD-ENGLISH-/";
+
 function shareWhatsApp(){
   const total = state.questions.length;
   const pct = Math.round((state.score/total)*100);
   const msg = "I scored " + state.score + "/" + total + " (" + pct + "%) in "
-    + state.unit.title + " Synonyms & Antonyms Quiz - English Teachers Hub Theni!";
+    + state.unit.title + " Synonyms & Antonyms Quiz - English Teachers Hub Theni!\n\n"
+    + "Think you can beat me? Try it yourself:\n" + QUIZ_SITE_URL;
   const url = "https://wa.me/?text=" + encodeURIComponent(msg);
   window.open(url, "_blank");
 }
